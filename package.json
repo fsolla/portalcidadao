@@ -1,0 +1,8 @@
+{
+  "name": "portalcidadao",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}
