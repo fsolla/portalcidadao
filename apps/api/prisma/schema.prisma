@@ -7,3 +7,95 @@ datasource db {
     provider = "postgresql"
     url      = env("DATABASE_URL")
 }
+
+model Officer {
+    id           String @id @default(cuid())
+    name         String
+    email        String @unique
+    passwordHash String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Admin {
+    id           String @id @default(cuid())
+    name         String
+    email        String @unique
+    passwordHash String
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    cityId String
+
+    city      City? @relation(fields: [cityId], references: [id])
+    ownedCity City? @relation("CityOwner")
+
+    @@index([cityId])
+}
+
+model User {
+    id    String  @id @default(cuid())
+    cpf   String  @unique
+    name  String
+    email String? @unique
+    phone String? @unique
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    cityId String?
+
+    city City? @relation(fields: [cityId], references: [id])
+
+    @@index([cityId])
+}
+
+model City {
+    id         String  @id @default(cuid())
+    name       String
+    slug       String  @unique
+    state      State
+    population Int
+    latitude   Float
+    longitude  Float
+    logoUrl    String?
+    tintColor  String?
+    isActive   Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+
+    ownerId String @unique
+
+    owner    Admin     @relation("CityOwner", fields: [ownerId], references: [id])
+    admins   Admin[]
+    users    User[]
+    articles Article[]
+}
+
+enum State {
+    BA
+}
+
+model Article {
+    id         String   @id @default(cuid())
+    title      String
+    slug       String   @unique
+    content    String
+    imageUrl   String?
+    tags       String[]
+    categories String[]
+
+    publishedAt DateTime @default(now())
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    cityId    String
+    city      City   @relation(fields: [cityId], references: [id])
+    createdBy String
+
+    @@index([cityId])
+    @@index([createdAt])
+}
